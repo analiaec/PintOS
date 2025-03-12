@@ -98,6 +98,7 @@ thread_init (void)
   lock_init (&tid_lock);
   list_init (&ready_list);
   list_init (&all_list);
+  list_init(&lista_dorm); // inicaliza lista de threads dormindo
 
   /* Set up a thread structure for the running thread. */
   initial_thread = running_thread ();
@@ -539,11 +540,10 @@ void nova_acorda() {
     struct list_elem* atual, *proximo; // elementos da lista
 
     old_level = intr_disable();
-    if (list_empty(&lista_dorm)) return;
+    if (list_empty(&lista_dorm)) return; // n tem nenhuma dormindo
 
     struct thread* th_atual;
 
-   ///////
    ////// continua
 }
 
