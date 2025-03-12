@@ -21,6 +21,11 @@
 #define THREAD_MAGIC 0xcd6abf4b
 #define A 55
 
+
+// lista de processos do estado bloqueado, dormindo. pra usar nas novas func e tirar espera ocupada
+static struct list lista_dorm;
+
+
 /* List of processes in THREAD_READY state, that is, processes
    that are ready to run but not actually running. */
 static struct list ready_list;
@@ -521,13 +526,26 @@ void nova_dorme(int64_t ticks) {
     // list_insert_ordered ta em list.c
     // value_less eh ponteiro p funcao q compara e ordena na lista
     // (tambem declarada em list)
-    list_insert_ordered(&sleep_list, &th_atual->elem, value_less, NULL);
+    list_insert_ordered(&lista_dorm, &th_atual->elem, value_less, NULL);
 
     thread_block(); // estado bloqueado
     intr_set_level(old_level); // reset no estado de interr.
 }
 
+// thread vai da fila de sleep pra pronto. e desbloqueia
+// usando funcoes de list.c
+void nova_acorda() {
+    enum intr_level old_level; // pro reset dps
+    struct list_elem* atual, *proximo; // elementos da lista
 
+    old_level = intr_disable();
+    if (list_empty(&lista_dorm)) return;
+
+    struct thread* th_atual;
+
+   ///////
+   ////// continua
+}
 
 
 /* Completes a thread switch by activating the new thread's page
