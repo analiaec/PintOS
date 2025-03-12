@@ -497,6 +497,39 @@ next_thread_to_run (void)
     return list_entry (list_pop_front (&ready_list), struct thread, elem);
 }
 
+
+
+////////
+// novas funcoes usadas no alarm clock 
+// (chamadas em timer.c - timer_sleep e timer_interrupt)
+
+void nova_dorme(int64_t ticks) {
+
+    if (ticks <= 0) return; // negativo ou zero n precisa dormir
+    enum intr_level old_level; // guarda o nvl de interrupcao pra reset
+    struct thread* th_atual;
+
+    ASSERT(!intr_context()); // fora de contexto de interr.
+    old_level = intr_disable(); // desabilita interrupcoes
+    th_atual = thread_current();
+
+    // tempo de acordar 
+    th_atual->sleep_ticks = timer_ticks() + ticks;
+    th_atual->status = THREAD_BLOCKED;
+
+    // coloca na sleep queue em ordem de tempo de dormir
+    // list_insert_ordered ta em list.c
+    // value_less eh ponteiro p funcao q compara e ordena na lista
+    // (tambem declarada em list)
+    list_insert_ordered(&sleep_list, &th_atual->elem, value_less, NULL);
+
+    thread_block(); // estado bloqueado
+    intr_set_level(old_level); // reset no estado de interr.
+}
+
+
+
+
 /* Completes a thread switch by activating the new thread's page
    tables, and, if the previous thread is dying, destroying it.
 
