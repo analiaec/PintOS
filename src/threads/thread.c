@@ -539,12 +539,23 @@ void nova_acorda() {
     enum intr_level old_level; // pro reset dps
     struct list_elem* atual, *proximo; // elementos da lista
 
-    old_level = intr_disable();
     if (list_empty(&lista_dorm)) return; // n tem nenhuma dormindo
+    old_level = intr_disable();
 
-    struct thread* th_atual;
+    struct thread* th_atual; // vai ser a thread do elem da lista no loop 
 
-   ////// continua
+    // procurando no loop de listas dormindo
+    for (atual = list_begin(&lista_dorm); atual != list_end(&lista_dorm); atual = proximo) {
+        proximo = list_next(atual); // atualiza prox 
+        th_atual = list_entry(atual, struct thread, elem);
+
+        if (th_atual->sleep_ticks <= timer_ticks()) { // tempo de sleep acabou? 
+            // entao acorda: tira da lista e desbloqueia
+            list_remove(atual);
+            thread_unblock(th_atual);
+        }
+    }
+    intr_set_level(old_level); // nvl original de interr,
 }
 
 
