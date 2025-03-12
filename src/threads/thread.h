@@ -126,6 +126,15 @@ const char *thread_name (void);
 void thread_exit (void) NO_RETURN;
 void thread_yield (void);
 
+///
+// funcoess de alarm clock
+
+// thread atual vai p fila de threads dormindo
+void nova_dorme(int64_t ticks)
+// checa pra acordar threads
+void nova_acorda(void);
+
+
 /* Performs some operation on thread t, given auxiliary data AUX. */
 typedef void thread_action_func (struct thread *t, void *aux);
 void thread_foreach (thread_action_func *, void *);
