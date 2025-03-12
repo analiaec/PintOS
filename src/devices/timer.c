@@ -89,11 +89,21 @@ timer_elapsed (int64_t then)
 void
 timer_sleep (int64_t ticks) 
 {
-  int64_t start = timer_ticks ();
+  // int64_t start = timer_ticks ();
 
-  ASSERT (intr_get_level () == INTR_ON);
-  while (timer_elapsed (start) < ticks) 
+  ASSERT(intr_get_level() == INTR_ON);
+  /* while (timer_elapsed (start) < ticks)
     thread_yield ();
+
+    tirando espera ocupada
+    */
+
+  // pra nao ter espera ocupada,  a thread vai ter q
+  // ir p fila de espera, dormir, depois ir pra pronto 
+  // na func vou fazer ela dormir (cria estrutura de thread,
+  // bota na fila de dormir, deixa bloqueada.
+
+  nova_dorme(ticks); // thread dorme (nova funcao)
 }
 
 /* Sleeps for approximately MS milliseconds.  Interrupts must be
@@ -171,6 +181,7 @@ static void
 timer_interrupt (struct intr_frame *args UNUSED)
 {
   ticks++;
+  nova_acorda(); // checa e acorda threads nova funcao
   thread_tick ();
 }
 
